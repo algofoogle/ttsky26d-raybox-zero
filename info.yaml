@@ -17,6 +17,21 @@ project:
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
+    - rbz_options.v
+    - raybox-zero/src/rtl/fixed_point_params.v
+    - raybox-zero/src/rtl/helpers.v
+    - raybox-zero/src/rtl/doors.v
+    - raybox-zero/src/rtl/rbzero.v
+    - raybox-zero/src/rtl/spi_registers.v
+    - raybox-zero/src/rtl/debug_overlay.v
+    - raybox-zero/src/rtl/map_overlay.v
+    - raybox-zero/src/rtl/map_rom.v
+    - raybox-zero/src/rtl/lzc.v
+    - raybox-zero/src/rtl/reciprocal.v
+    - raybox-zero/src/rtl/wall_tracer.v
+    - raybox-zero/src/rtl/row_render.v
+    - raybox-zero/src/rtl/vga_mux.v
+    - raybox-zero/src/rtl/vga_sync.v
     - project.v
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
@@ -31,7 +46,6 @@ pinout:
   ui[5]: inc_py   # Increment py
   ui[6]: reg      # Present registered or unregistered outputs?
   ui[7]: tex_pmod_type
-
   #NOTE: For texture_pmod_type:
   # 0=Moser's QSPI PMOD;
   #   In this mode, it's assumed gen_texb is not used, i.e. we're always using
