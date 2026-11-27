@@ -11,11 +11,11 @@
 
   "//": "Here are some of the variables you may want to change:",
 
-  "SYNTH_STRATEGY": "DELAY 0",
+  "SYNTH_STRATEGY": "DELAY 1",
 
   "//": "PL_TARGET_DENSITY_PCT - You can increase this if Global Placement fails with error GPL-0302.",
   "//": "Users have reported that values up to 80 worked well for them.",
-  "PL_TARGET_DENSITY_PCT": 50,
+  "PL_TARGET_DENSITY_PCT": 70,
 
   "//": "CLOCK_PERIOD - Increase this in case you are getting setup time violations.",
   "//": "The value is in nanoseconds, so 40ns == 25MHz.",
