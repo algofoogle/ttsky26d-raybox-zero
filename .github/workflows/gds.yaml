@@ -22,7 +22,7 @@ jobs:
       # flow in the 'Build GDS' step.
       - name: LibreLane overview
         id: librelane_overview
-        uses: algofoogle/action-log-monitor@v0p3
+        uses: algofoogle/action-log-monitor@v0p4
         background: true
         continue-on-error: true
         with:
@@ -35,11 +35,22 @@ jobs:
       # than the full 'Build GDS' job's log output:
       - name: LibreLane detailed tool progress
         id: librelane_tools
-        uses: algofoogle/action-log-monitor@v0p3
+        uses: algofoogle/action-log-monitor@v0p4
         background: true
         continue-on-error: true
         with:
           config-file: '@alm/templates/tiny-tapeout-tools.yml'
+          stop-file: ${{ env.ALM_DONE }}
+
+      # This just gives a summary of which step LL is up to and how long
+      # it's been doing it (and how many lines it has racked up in its log)
+      - name: LibreLane step summary
+        id: librelane_steps
+        uses: algofoogle/action-log-monitor@v0p4
+        background: true
+        continue-on-error: true
+        with:
+          config-file: '@alm/templates/tiny-tapeout-steps.yml'
           stop-file: ${{ env.ALM_DONE }}
 
       # This is the main TT/LibreLane hardening step that synthesises the
@@ -56,7 +67,7 @@ jobs:
 
       # Waits for action-log-monitor background steps to get their final updates and exit:
       - name: Wait for final log snapshots
-        wait: [librelane_overview, librelane_tools]
+        wait: [librelane_overview, librelane_tools, librelane_steps]
 
   precheck:
     needs: gds
