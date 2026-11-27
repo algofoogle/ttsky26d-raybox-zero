@@ -13,10 +13,27 @@ jobs:
         with:
           submodules: recursive
 
+      # This step runs in the background to monitor and generate periodic summaries
+      # of the flow.log file that is progressively (and excessively!) emitted by
+      # the LibreLane flow in the 'Build GDS' step.
+      - name: LibreLane flow.log live progress summary
+        id: librelane_log_monitor
+        uses: algofoogle/action-log-monitor
+        background: true
+        continue-on-error: true
+        with:
+          log-finder: |
+            if [[ -d runs ]]; then
+              find runs -type f -name flow.log -print -quit
+            fi
+
       - name: Build GDS
         uses: TinyTapeout/tt-gds-action@ttsky26d
         with:
           pdk: sky130A
+
+      - name: Stop LibreLane log monitor
+        cancel: librelane_log_monitor
 
   precheck:
     needs: gds
