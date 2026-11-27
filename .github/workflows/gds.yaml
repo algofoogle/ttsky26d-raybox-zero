@@ -8,7 +8,7 @@ jobs:
   gds:
     runs-on: ubuntu-24.04
     env:
-      # Used by active-log-monitor as a signal of when 'Build GDS' is done:
+      # Used by action-log-monitor as a signal of when 'Build GDS' is done:
       ALM_DONE: .alm-${{ github.run_id }}-${{ github.run_attempt }}.done
 
     steps:
@@ -22,7 +22,7 @@ jobs:
       # flow in the 'Build GDS' step.
       - name: LibreLane overview
         id: librelane_overview
-        uses: algofoogle/action-log-monitor@v0p2
+        uses: algofoogle/action-log-monitor@v0p3
         background: true
         continue-on-error: true
         with:
@@ -35,7 +35,7 @@ jobs:
       # than the full 'Build GDS' job's log output:
       - name: LibreLane detailed tool progress
         id: librelane_tools
-        uses: algofoogle/action-log-monitor@v0p2
+        uses: algofoogle/action-log-monitor@v0p3
         background: true
         continue-on-error: true
         with:
@@ -49,12 +49,12 @@ jobs:
         with:
           pdk: sky130A
 
-      # Signals active-log-monitor background steps that they can stop now:
+      # Signals action-log-monitor background steps that they can stop now:
       - name: Signal end of hardening
         if: ${{ !cancelled() }}
         run: touch -- "$ALM_DONE"
 
-      # Waits for active-log-monitor background steps to get their final updates and exit:
+      # Waits for action-log-monitor background steps to get their final updates and exit:
       - name: Wait for final log snapshots
         wait: [librelane_overview, librelane_tools]
 
