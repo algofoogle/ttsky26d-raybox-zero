@@ -18,7 +18,7 @@ jobs:
       # the LibreLane flow in the 'Build GDS' step.
       - name: LibreLane flow.log live progress summary
         id: librelane_log_monitor
-        uses: algofoogle/action-log-monitor
+        uses: algofoogle/action-log-monitor@v0p1
         background: true
         continue-on-error: true
         with:
