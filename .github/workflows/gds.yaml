@@ -7,6 +7,10 @@ on:
 jobs:
   gds:
     runs-on: ubuntu-24.04
+    env:
+      # Used by active-log-monitor as a signal of when 'Build GDS' is done:
+      ALM_DONE: .alm-${{ github.run_id }}-${{ github.run_attempt }}.done
+
     steps:
       - name: checkout repo
         uses: actions/checkout@v6
@@ -14,26 +18,45 @@ jobs:
           submodules: recursive
 
       # This step runs in the background to monitor and generate periodic summaries
-      # of the flow.log file that is progressively (and excessively!) emitted by
-      # the LibreLane flow in the 'Build GDS' step.
-      - name: LibreLane flow.log live progress summary
-        id: librelane_log_monitor
-        uses: algofoogle/action-log-monitor@v0p1
+      # of the flow.log file that is gets high-level updates during the LibreLane
+      # flow in the 'Build GDS' step.
+      - name: LibreLane overview
+        id: librelane_overview
+        uses: algofoogle/action-log-monitor@v0p2
         background: true
         continue-on-error: true
         with:
-          log-finder: |
-            if [[ -d runs ]]; then
-              find runs -type f -name flow.log -print -quit
-            fi
+          config-file: '@alm/templates/tiny-tapeout-overview.yml'
+          stop-file: ${{ env.ALM_DONE }}
 
+      # Similar to 'Librelane overview' above, this tries to track all the
+      # different subprocess log files from the LibreLane flow and give a
+      # live summary of them, in hopefully a way that is much more condensed
+      # than the full 'Build GDS' job's log output:
+      - name: LibreLane detailed tool progress
+        id: librelane_tools
+        uses: algofoogle/action-log-monitor@v0p2
+        background: true
+        continue-on-error: true
+        with:
+          config-file: '@alm/templates/tiny-tapeout-tools.yml'
+          stop-file: ${{ env.ALM_DONE }}
+
+      # This is the main TT/LibreLane hardening step that synthesises the
+      # RTL and generates the final GDS:
       - name: Build GDS
         uses: TinyTapeout/tt-gds-action@ttsky26d
         with:
           pdk: sky130A
 
-      - name: Stop LibreLane log monitor
-        cancel: librelane_log_monitor
+      # Signals active-log-monitor background steps that they can stop now:
+      - name: Signal end of hardening
+        if: ${{ !cancelled() }}
+        run: touch -- "$ALM_DONE"
+
+      # Waits for active-log-monitor background steps to get their final updates and exit:
+      - name: Wait for final log snapshots
+        wait: [librelane_overview, librelane_tools]
 
   precheck:
     needs: gds
